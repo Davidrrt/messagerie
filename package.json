@@ -8,15 +8,17 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "nuxt": "3.0.0-rc.9",
+    "nuxt": "3.0.0-rc.11",
     "sass": "^1.57.0",
-    "sass-loader": "^13.2.0"
+    "sass-loader": "^13.2.0",
+    "unplugin-auto-import": "^0.11.2",
+    "unplugin-vue-components": "^0.22.8",
+    "vite-plugin-style-import": "^2.0.0"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",
-    "@pinia/nuxt": "^0.4.2",
-    "ant-design-vue": "^3.2.15",
-    "pinia": "^2.0.28",
-    "unplugin-vue-components": "^0.22.12"
+    "@pinia/nuxt": "^0.4.3",
+    "ant-design-vue": "^3.2.13",
+    "pinia": "^2.0.28"
   }
 }
