@@ -179,9 +179,7 @@ import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   setup() {
-    const callback = (val: string) => {
-      console.log(val);
-    };
+    const callback = (val: string) => {};
     return {
       callback,
     };

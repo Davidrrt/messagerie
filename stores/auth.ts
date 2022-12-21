@@ -13,8 +13,7 @@ export const useAuthStore = defineStore('auth',{
         method: 'POST',
         body: loginForm
       })
-        .then(response => {
-          console.log(response)
+        .then((response: any) => {
           this.user = response
           this.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
           localStorage.setItem('user', JSON.stringify(this.user))
@@ -25,8 +24,8 @@ export const useAuthStore = defineStore('auth',{
         })
     },
     logout() {
-      this.user = null
-      this.token = null
+      this.user = ''
+      this.token = ''
       localStorage.removeItem('user')
       localStorage.removeItem('token')
     }

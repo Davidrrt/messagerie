@@ -1,3 +1,30 @@
+<script lang="ts" setup>
+import MessageList from "~~/components/MessageList.vue";
+import ChatBox from "~~/components/ChatBox.vue";
+import { useMessageStore } from "~~/stores/message";
+
+const messageStore = useMessageStore();
+
+await useAsyncData("messages", async () => {
+  return messageStore.allMessage();
+});
+
+const selected = ref("all");
+
+const addMessage = async (idActive: string, testMes: boolean) => {
+  await messageStore.messageOne(idActive, testMes);
+};
+let listMessageDefault = messageStore.getSortedMessages.reverse();
+
+watch(selected, (value: string) => {
+  if (value === "all") {
+    listMessageDefault = messageStore.getSortedMessages.reverse();
+  } else {
+    listMessageDefault = messageStore.getFilterMessages(value);
+  }
+});
+</script>
+
 <template>
   <div class="row rounded-lg overflow-hidden">
     <!-- Users box-->
@@ -15,12 +42,13 @@
         <div class="row mt-2 mb-2">
           <div class="col-9">
             <select
+              v-model="selected"
               class="form-select form-select-lg select-custom"
               aria-label=".form-select-lg example"
             >
-              <option selected>Tous les messages</option>
-              <option value="1">messages archivés</option>
-              <option value="2">messages envoyés</option>
+              <option value="all">Tous les messages</option>
+              <option value="ARCHIVED">messages archivés</option>
+              <option value="OPEN">messages envoyés</option>
             </select>
           </div>
           <div class="col-3 pt-2">
@@ -30,203 +58,55 @@
         </div>
         <div class="messages-box">
           <div class="list-group">
-            <a class="list-group-item list-group-item-action active">
-              <div class="media">
-                <div class="media-body ml-4">
-                  <div
-                    class="d-flex align-items-center justify-content-between mb-1"
-                  >
-                    <h6 class="mb-0">
-                      <img
-                        src="assets/facebook.png"
-                        alt="user"
-                        width="12"
-                        class="rounded-circle"
-                      />
-                      555 - 555 5555
-                      <img src="assets/new-arrival.png" width="16" />
-                    </h6>
-                    <small class="small blue font-weight-bold">19:32</small>
-                  </div>
-                  <p class="font-italic mb-0 text-small">
-                    Bonjour, j’ai acheter un produit et...
-                  </p>
-                </div>
-              </div>
-            </a>
-
-            <a class="list-group-item list-group-item-action">
-              <div class="media">
-                <div class="media-body ml-4">
-                  <div
-                    class="d-flex align-items-center justify-content-between mb-1"
-                  >
-                    <h6 class="mb-0">
-                      <img
-                        src="assets/google.png"
-                        alt="user"
-                        width="12"
-                        class="rounded-circle"
-                      />
-                      Jack Pott
-                      <img src="assets/new-arrival.png" width="16" />
-                    </h6>
-                    <small class="small blue font-weight-bold">19:32</small>
-                  </div>
-                  <p class="font-italic mb-0 text-small">
-                    Bonjour, j’ai acheter un produit et...
-                  </p>
-                </div>
-              </div>
-            </a>
-            <a class="list-group-item list-group-item-action">
-              <div class="media">
-                <div class="media-body ml-4">
-                  <div
-                    class="d-flex align-items-center justify-content-between mb-1"
-                  >
-                    <h6 class="mb-0">
-                      <img
-                        src="assets/google.png"
-                        alt="user"
-                        width="12"
-                        class="rounded-circle"
-                      />
-                      Jack Pott
-                    </h6>
-                    <small class="small blue font-weight-bold">19:32</small>
-                  </div>
-                  <p class="font-italic mb-0 text-small">
-                    Bonjour, j’ai acheter un produit et...
-                  </p>
-                </div>
-              </div>
-            </a>
+            <MessageList :items="listMessageDefault" />
           </div>
         </div>
       </div>
     </div>
     <!-- Chat Box-->
     <div class="col-9 px-0">
-      <div class="row ml-4 mb-4">
-        <h4 class="text-chat">Jack Pott</h4>
+      <div v-if="messageStore.getMessageActive" class="row ml-4 mb-4">
+        <h4 class="text-chat">{{ messageStore.getMessageActive?.author }}</h4>
         <img class="ml-4 mr-4" src="assets/File.png" width="16" height="20" />
         <img class="mr-4" src="assets/mail.png" width="20" height="18" />
         <img src="assets/Trash.png" width="18" height="18" />
       </div>
-      <div class="px-4 py-5 chat-box mail-content">
-        <!-- Sender Message-->
-        <div class="media w-50 mb-3">
-          <div class="media-body ml-3">
-            <div class="white-bg rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-muted">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Curabitur arcu ante, fringilla at tristique quis, aliquet quis
-              </p>
-            </div>
-            <p class="small text-muted ml-2">
-              <img
-                src="assets/google.png"
-                alt="user"
-                width="12"
-                class="rounded-circle"
-              />
-              12:00 PM
-            </p>
-          </div>
+      <div v-if="messageStore.getMessageActive">
+        <div class="px-4 py-5 chat-box mail-content">
+          <ChatBox :items="messageStore.getMessageActive?.content" />
         </div>
-
-        <!-- Reciever Message-->
-        <div class="media w-50 ml-auto mb-3">
-          <div class="media-body">
-            <div class="bg-primary rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-white">
-                Test which is a new approach to have all solutions
-              </p>
-            </div>
-            <p class="small text-muted">12:00 PM</p>
-          </div>
+        <div class="row ml-4 mt-3 mb-2">
+          <button
+            type="button"
+            @click="addMessage(messageStore.getMessageActive?._id, true)"
+            class="btn btn-primary btn-send-two"
+          >
+            1- Message client
+          </button>
         </div>
-
-        <!-- Sender Message-->
-        <div class="media w-50 mb-3">
-          <div class="media-body ml-3">
-            <div class="white-bg rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-muted">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Curabitur arcu ante, fringilla at tristique quis, aliquet quis
-              </p>
-            </div>
-            <p class="small text-muted ml-2">
-              <img
-                src="assets/google.png"
-                alt="user"
-                width="12"
-                class="rounded-circle"
-              />
-              12:00 PM
-            </p>
-          </div>
-        </div>
-
-        <!-- Reciever Message-->
-        <div class="media w-50 ml-auto mb-3">
-          <div class="media-body">
-            <div class="bg-primary rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-white">
-                Apollo University, Delhi, India Test
-              </p>
-            </div>
-            <p class="small text-muted">12:00 PM</p>
-          </div>
-        </div>
-
-        <div class="media w-50 mb-3">
-          <div class="media-body ml-3">
-            <div class="white-bg rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-muted">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Curabitur arcu ante, fringilla at tristique quis, aliquet quis
-              </p>
-            </div>
-            <p class="small text-muted ml-2">
-              <img
-                src="assets/google.png"
-                alt="user"
-                width="12"
-                class="rounded-circle"
-              />
-              12:00 PM
-            </p>
-          </div>
-        </div>
-
-        <!-- Reciever Message-->
-        <div class="media w-50 ml-auto mb-3">
-          <div class="media-body">
-            <div class="bg-primary rounded py-2 px-3 mb-2">
-              <p class="text-small mb-0 text-white">
-                Apollo University, Delhi, India Test
-              </p>
-            </div>
-            <p class="small text-muted">12:00 PM</p>
-          </div>
+        <div class="row ml-4 mb-4">
+          <button
+            type="button"
+            @click="addMessage(messageStore.getMessageActive?._id, false)"
+            class="btn btn-primary btn-send-two"
+          >
+            2- Réponse de l'utilisateur
+          </button>
         </div>
       </div>
-      <div class="row ml-4 mt-3 mb-2">
-        <button type="button" class="btn btn-primary btn-send-two">
-          1- Message client
-        </button>
-      </div>
-      <div class="row ml-4 mb-4">
-        <button type="button" class="btn btn-primary btn-send-two">
-          2- Réponse de l'utilisateur
-        </button>
+      <div
+        v-if="!messageStore.getMessageActive"
+        class="px-4 py-5 chat-box mail-content no-mail"
+      >
+        <h4 class="text-center">"Sélectionner un message!"</h4>
       </div>
     </div>
   </div>
 </template>
 <style lang="scss">
+body {
+  overflow: hidden;
+}
 ::-webkit-scrollbar {
   width: 5px;
 }
@@ -268,6 +148,11 @@
   line-height: 24px;
   text-decoration-line: underline;
   color: #00307b;
+}
+
+.no-mail {
+  margin-top: 62px;
+  overflow: hidden;
 }
 
 .btn-send {

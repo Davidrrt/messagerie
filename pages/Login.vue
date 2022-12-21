@@ -1,6 +1,15 @@
 <script setup lang="ts">
+import { Modal } from "ant-design-vue";
+
 const authStore = useAuthStore();
 const router = useRouter();
+
+const error = () => {
+  Modal.error({
+    title: () => "Une erreur est survenue",
+    content: () => "Utilisateur inconnu ou mot de passe incorrect !",
+  });
+};
 
 interface loginForm {
   email: string;
@@ -13,7 +22,12 @@ let loginForm: loginForm = {
 };
 
 function login() {
-  authStore.login(loginForm).then((_response: any) => router.push("/"));
+  authStore
+    .login(loginForm)
+    .then((_response: any) => router.push("/"))
+    .catch(() => {
+      error();
+    });
 }
 </script>
 
@@ -80,7 +94,7 @@ function login() {
                       />
                     </div>
                   </div>
-                  <div class="d-grid gap-2 col-6 mx-auto">
+                  <div class="d-grid gap-2 col-6 ml-3">
                     <button
                       type="submit"
                       class="btn btn-primary mb-3 btn-submit"
@@ -94,13 +108,13 @@ function login() {
           </div>
         </div>
       </div>
-      <div class="row justify-content-md-center mt-4">
+      <!--       <div class="row justify-content-md-center mt-4">
         <div class="alert alert-danger col-4 align-self-center" role="alert">
           <p class="text-center">
             Utilisateur inconnu ou mot de passe incorrect
           </p>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

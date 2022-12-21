@@ -2,6 +2,11 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
   buildModules: [],
+  nitro: {
+    externals: {
+      inline: ["uuid"],
+    },
+  },
   build: {
     transpile: ['@babel/runtime', 'lodash-es']
   },
@@ -16,7 +21,7 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['stores'],
   },
-  css: ['~/assets/style/sb-admin-2.min.css','~/assets/style/main.css'],
+  css: ['~/assets/style/main.css','~/assets/style/sb-admin-2.min.css'],
   components: {
     dirs: [
       '~/pages',
